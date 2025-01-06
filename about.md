@@ -2,7 +2,7 @@
 layout: page
 title: About
 ---
+Hi! I'm hobbyist code writer. This is not showcase of my work, but a place to keep solutions to some problems and may be some of my ideas.
 
-This is an example page!
 
-It's very similar to a `post` layout, with the only difference that the publish date is not shown!
+visit me at <a href='https://github.com/mfgbhatti'>github</a>.
