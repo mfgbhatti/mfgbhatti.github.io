@@ -30,7 +30,7 @@ Arch linux mkinitcpio will assemble the UKI itself unless `systemd-ukify` is ins
     default_uki="${ESP_DIR}/arch-linux${SUFFIX}.efi"
     default_options="--cmdline /etc/kernel/cmdline"
 
-This code can be helpfull when creating a template i.e. for `linux-lts` e.g. in `/etc/mkinitcpio.d/linux.preset`
+This code can be helpfull when creating a template i.e. for `linux-lts` e.g. in `/etc/mkinitcpio.d/linux-lts.preset`
 
     SUFFIX="-lts"
     source /etc/mkinitcpio.d/linux.preset
