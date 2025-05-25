@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1"
+  />
+
+  <title>
+     Arch Linux Working On Unified Kernel Image &middot; mfgbhatti 
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css" />
+  <link rel="stylesheet" href="/public/css/syntax.css" />
+  <link rel="stylesheet" href="/public/css/hyde.css" />
+  <link
+    rel="stylesheet"
+    href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface"
+  />
+
+  <!-- Icons -->
+  <link
+    rel="apple-touch-icon-precomposed"
+    sizes="144x144"
+    href="public/apple-touch-icon-144-precomposed.png"
+  />
+  <link rel="shortcut icon" href="public/favicon.ico" />
+
+  <!-- RSS -->
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+</head>
+
+
+  <body class="theme-base-0e">
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href=""> mfgbhatti </a>
+      </h1>
+      <p class="lead">Hi! I'm hobbyist code writer. This is not showcase of my work, but a place to keep solutions to some problems and may be some of my ideas.
+</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        class="sidebar-nav-item"
+        href="/"
+        >Home</a
+      >
+
+              
+      <a
+        class="sidebar-nav-item"
+        href="/about"
+        >About</a
+      >
+            
+      <a
+        class="sidebar-nav-item"
+        href="/excercise"
+        >Excercises</a
+      >
+                  
+
+      <a class="sidebar-nav-item" href="https://github.com/poole/hyde"
+        >GitHub project</a
+      >
+      <span class="sidebar-nav-item">Currently v2.1.0</span>
+    </nav>
+
+    <p>&copy; 2025. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+  <h1 class="post-title">Arch Linux Working On Unified Kernel Image</h1>
+  <span class="post-date">14 May 2025</span>
+  <h2 id="what-is-a-unified-kernel-image">What is a Unified Kernel Image?</h2>
+<p>A Unified Kernel Image (UKI) is a single executable file that combines:</p>
+
+<ul>
+  <li>The Linux kernel</li>
+  <li>An initramfs (initial RAM filesystem)</li>
+  <li>The kernel command line</li>
+  <li>UEFI stub (for direct UEFI booting)</li>
+  <li>Optional secure boot signatures</li>
+</ul>
+
+<p>UKIs simplify the boot process by bundling everything needed into one file, making it easier to manage and sign for Secure Boot compatibility.</p>
+
+<h2 id="generating-ukis">Generating UKIs</h2>
+<p>Arch linux mkinitcpio will assemble the UKI itself unless <code class="language-plaintext highlighter-rouge">systemd-ukify</code> is installed.</p>
+
+<h3 id="using-mkinitcpio">Using mkinitcpio</h3>
+<p><code class="language-plaintext highlighter-rouge">mkinitcpio</code> preset file for the <code class="language-plaintext highlighter-rouge">linux</code> package at <code class="language-plaintext highlighter-rouge">/etc/mkinitcpio.d/linux.preset</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ESP_DIR="/efi/EFI/ArchLinux"
+
+ALL_kver="/boot/vmlinuz-linux${SUFFIX}"
+
+PRESETS=('default') # this is not for a fallback
+
+default_image="/boot/initramfs-linux${SUFFIX}.img"
+default_uki="${ESP_DIR}/arch-linux${SUFFIX}.efi"
+default_options="--cmdline /etc/kernel/cmdline"
+</code></pre></div></div>
+
+<p>This code can be helpfull when creating a template i.e. for <code class="language-plaintext highlighter-rouge">linux-lts</code> e.g. in <code class="language-plaintext highlighter-rouge">/etc/mkinitcpio.d/linux-lts.preset</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SUFFIX="-lts"
+source /etc/mkinitcpio.d/linux.preset
+</code></pre></div></div>
+
+<h4 id="kernel-command-line">Kernel command line</h4>
+<p><code class="language-plaintext highlighter-rouge">mkinitcpio</code> supports reading kernel parameters from command line files in the <code class="language-plaintext highlighter-rouge">/etc/cmdline.d directory</code>. <code class="language-plaintext highlighter-rouge">mkinitcpio</code> will concatenate the contents of all files with a .conf extension in this directory and use them to generate the kernel command line. Or <code class="language-plaintext highlighter-rouge">/etc/kernel/cmdline</code> can also be used as illustrated in above code.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rd.luks.name=fe30dd04-9v8a-4817-q10e-0999ece7oo31=archlinux root=/dev/mapper/archlinux rootflags=noatime,ssd,compress=zstd:1,space_cache=v2,discard=async,subvol=@ rw quiet splash loglevel=3 systemd.show_status=auto rd.udev.log_level=3
+</code></pre></div></div>
+
+<h3 id="additional-info">Additional info</h3>
+<p><code class="language-plaintext highlighter-rouge">mkinitcpio.conf</code> contains hooks e.g.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HOOKS=(base systemd plymouth autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
+</code></pre></div></div>
+
+<h1 id="note">Note</h1>
+<p>Please give a proper read <a href="https://wiki.archlinux.org/title/Unified_kernel_image">unified_kernel_image</a> and <a href="https://wiki.archlinux.org/title/Mkinitcpio">mkinitcpio</a>.</p>
+
+</div>
+
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/configure-mkinitcpio-with-kernel-parameters.html">
+            Configure Mkinitcpio With Kernel Parameters
+            <small>17 May 2024</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/crypttab-and-crypttabinitramfs.html">
+            Crypttab And Crypttabinitramfs
+            <small>10 May 2024</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/qxl-with-wayland-and-4k-resolution.html">
+            QXL With Wayland And 4K Resolution
+            <small>29 Mar 2024</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+    </div>
+
+  </body>
+</html>

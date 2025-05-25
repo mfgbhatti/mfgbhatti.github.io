@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1"
+  />
+
+  <title>
+      - page 2 &middot; mfgbhatti 
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css" />
+  <link rel="stylesheet" href="/public/css/syntax.css" />
+  <link rel="stylesheet" href="/public/css/hyde.css" />
+  <link
+    rel="stylesheet"
+    href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface"
+  />
+
+  <!-- Icons -->
+  <link
+    rel="apple-touch-icon-precomposed"
+    sizes="144x144"
+    href="public/apple-touch-icon-144-precomposed.png"
+  />
+  <link rel="shortcut icon" href="public/favicon.ico" />
+
+  <!-- RSS -->
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+</head>
+
+
+  <body class="theme-base-0e">
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href=""> mfgbhatti </a>
+      </h1>
+      <p class="lead">Hi! I'm hobbyist code writer. This is not showcase of my work, but a place to keep solutions to some problems and may be some of my ideas.
+</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        class="sidebar-nav-item"
+        href="/"
+        >Home</a
+      >
+
+              
+      <a
+        class="sidebar-nav-item"
+        href="/about"
+        >About</a
+      >
+            
+      <a
+        class="sidebar-nav-item"
+        href="/excercise"
+        >Excercises</a
+      >
+                  
+
+      <a class="sidebar-nav-item" href="https://github.com/poole/hyde"
+        >GitHub project</a
+      >
+      <span class="sidebar-nav-item">Currently v2.1.0</span>
+    </nav>
+
+    <p>&copy; 2025. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="posts">
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/iwlwifi-your-wifi-is-working.html"> iwlwifi: Your Wifi Is Working? </a>
+    </h1>
+
+    <span class="post-date">19 Aug 2022</span>
+
+    <p>Sometimes, specially when you are using Arch, after using
+<code class="language-plaintext highlighter-rouge">pacman -Syu</code>, and updating <code class="language-plaintext highlighter-rouge">linux-firmware</code>, you
+will find that there is no wifi present after rebooting. Donot panic,
+there is a bug in firmware for iwlwifi which block your system to load
+latest firmware for iwlwifi. Just issue command <code class="language-plaintext highlighter-rouge">journalctl -p 3 -xb</code>,
+this will let you know that firmware file is not loading (I dont recall
+the exact error message).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo mv /usr/lib/firmware/faulty.ucode.xz /usr/lib/firmware/faulty.ucode.xz.back
+</code></pre></div></div>
+
+<p>Thats is all. your wifi will be up in no time!</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/passing-real-ip-address-to-nginx-excess-log.html"> Passing RealIp Address To Nginx Access Log </a>
+    </h1>
+
+    <span class="post-date">09 Jun 2022</span>
+
+    <p>When you place Nginx behind Cloudflare, the <code class="language-plaintext highlighter-rouge">http_remote_addr</code> in Nginx <code class="language-plaintext highlighter-rouge">access_log</code> will contain the Cloudflare IP, which is not helpfull when banning users. To enable Nginx to resolve the real IP of visitors, we need to whitelist the Cloudflare IPs and map the header value.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set_real_ip_from [Cloudflare IP]
+
+real_ip_header CF-Connecting-IP;
+</code></pre></div></div>
+
+<p>To automate this process, we can write a bash script <code class="language-plaintext highlighter-rouge">/usr/bin/get_cloudflare_ips.sh</code> that handles this repetitive task.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/usr/bin/env bash
+
+generate_ip_file() {
+    CMD="$1"
+
+    printf "# https://www.cloudflare.com/ips\n"
+    printf "# Generated at %s\n" "$(LC_ALL=C date)"
+
+    for TYPE in v4 v6; do
+        printf "\n# IP%s\n" "$TYPE"
+        curl -sL "https://www.cloudflare.com/ips-$TYPE/" | sed "s!^!$CMD !g" | sed "s!\$!;!g"
+        printf "\n"
+    done
+}
+
+(generate_ip_file set_real_ip_from &amp;&amp; printf "real_ip_header CF-Connecting-IP;\n") &gt; /etc/nginx/conf.d/cloudflare.conf
+
+</code></pre></div></div>
+
+<p>Assuming this works well, it will produce <code class="language-plaintext highlighter-rouge">/etc/nginx/conf.d/cloudflare.conf</code> like</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># https://www.cloudflare.com/ips
+#
+
+# IPv4
+set_real_ip_from 173.245.48.0/20;
+set_real_ip_from 103.21.244.0/22;
+set_real_ip_from 103.22.200.0/22;
+set_real_ip_from 103.31.4.0/22;
+set_real_ip_from 141.101.64.0/18;
+set_real_ip_from 108.162.192.0/18;
+set_real_ip_from 190.93.240.0/20;
+set_real_ip_from 188.114.96.0/20;
+set_real_ip_from 197.234.240.0/22;
+set_real_ip_from 198.41.128.0/17;
+set_real_ip_from 162.158.0.0/15;
+set_real_ip_from 104.16.0.0/13;
+set_real_ip_from 104.24.0.0/14;
+set_real_ip_from 172.64.0.0/13;
+set_real_ip_from 131.0.72.0/22;
+
+# IPv6
+set_real_ip_from 2400:cb00::/32;
+set_real_ip_from 2606:4700::/32;
+set_real_ip_from 2803:f800::/32;
+set_real_ip_from 2405:b500::/32;
+set_real_ip_from 2405:8100::/32;
+set_real_ip_from 2a06:98c0::/29;
+set_real_ip_from 2c0f:f248::/32;
+real_ip_header CF-Connecting-IP;
+</code></pre></div></div>
+
+<p>Since Cloudflare may update their IP addresses, it’s best practice to stay synced with them. To overcome this difficulty, a nice systemd timer at <code class="language-plaintext highlighter-rouge">/etc/systemd/system/cloudflare.timer</code> like</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+[Unit]
+Description=Running cloudflare service
+
+[Timer]
+OnCalendar=Sat *-*-1..7 18:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+
+</code></pre></div></div>
+
+<p>This timer will run after 4 weeks and start a service <code class="language-plaintext highlighter-rouge">/etc/systemd/system/cloudflare.service</code> which in turn will execute bash script at <code class="language-plaintext highlighter-rouge">/usr/bin/get_cloudflare_ips.sh</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+[Unit]
+Description=Fetching cloudflare ips
+ 
+[Service]
+Type=simple
+ExecStart=/usr/bin/get_cloudflare_ips.sh
+</code></pre></div></div>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/running-multiple-wordpress-instances-in-docker.html"> Running Multiple Wordpress Instances In Docker </a>
+    </h1>
+
+    <span class="post-date">17 Nov 2021</span>
+
+    <p>When running multiple instances of WordPress in docker, this will be
+        very helpful.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -e MYSQL_ROOT_PASSWORD='strongpassword' \
+-e MYSQL_USER=wpuser -e MYSQL_PASSWORD='strongpassword' -e MYSQL_DATABASE=website_db \
+-v /var/www/website/database:/var/lib/mysql --name website_db \
+-d --restart always mariadb
+</code></pre></div></div>
+<p>You must make sure to run mysql or mariadb container first. Because it
+        will in on the network created by docker before you create wordpress
+        instance</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -e WORDPRESS_DB_HOST=website_db -e WORDPRESS_DB_USER=wpuser \
+-e WORDPRESS_DB_PASSWORD='strongpassword' -e WORDPRESS_DB_NAME=website_db \
+-p 8081:80 -v /var/www/website/html:/var/www/html --name website_wordpress \
+--link [db container name]:mysql -d --restart always wordpress
+</code></pre></div></div>
+
+<p>you can certainly access volumes from <code class="language-plaintext highlighter-rouge">/var/</code>. And also use docker exec to
+        add dbdump files.</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/finding-and-deleting-old-kernels.html"> Finding And Deleting Old Kernels </a>
+    </h1>
+
+    <span class="post-date">23 Feb 2021</span>
+
+    <p>In Ubuntu, you will some time find fallback kernels in <code class="language-plaintext highlighter-rouge">/boot</code>. These are
+        some time annoyning specially when you do not have something else to do.
+        I’m using ubuntu server for my web projects, I updated it, to my my
+        surprize there were about four versions of kernel were present. Yes you
+        can certainly delete them by issuing command but why so easy. Why not
+        use just one command and you will get only two, one for main use and
+        other one for fallback.
+So any time you got more than two use this command</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dpkg --list | grep linux-image | awk '{ print $2 }' | sort -V | sed -n '/'`uname -r`'/q;p' \
+| sed -n '/linux-image second last/q' | xargs sudo apt-get -y purge
+</code></pre></div></div>
+
+<p>But do not forgot to update your <code class="language-plaintext highlighter-rouge">grub config</code> after this.</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/whats-jekyll.html"> Welcome to Jekyll! </a>
+    </h1>
+
+    <span class="post-date">06 Feb 2012</span>
+
+    <p>You’ll find this post in your <code class="language-plaintext highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="language-plaintext highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
+
+<p>Jekyll requires blog post files to be named according to the following format:</p>
+
+<p><code class="language-plaintext highlighter-rouge">YEAR-MONTH-DAY-title.MARKUP</code></p>
+
+<p>Where <code class="language-plaintext highlighter-rouge">YEAR</code> is a four-digit number, <code class="language-plaintext highlighter-rouge">MONTH</code> and <code class="language-plaintext highlighter-rouge">DAY</code> are both two-digit numbers, and <code class="language-plaintext highlighter-rouge">MARKUP</code> is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.</p>
+
+<p>Jekyll also offers powerful support for code snippets:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>
+
+<p>Check out the <a href="https://jekyllrb.com/docs/home">Jekyll docs</a> for more info on how to get the most out of Jekyll. File all bugs/feature requests at <a href="https://github.com/jekyll/jekyll">Jekyll’s GitHub repo</a>. If you have questions, you can ask them on <a href="https://talk.jekyllrb.com/">Jekyll Talk</a>.</p>
+
+
+  </div>
+  
+</div>
+
+<div class="pagination">
+   
+  <span class="pagination-item older">Older</span>
+   
+  <a
+    class="pagination-item newer"
+    href="/"
+    >Newer &rarr;</a
+  >
+   
+</div>
+
+    </div>
+
+  </body>
+</html>

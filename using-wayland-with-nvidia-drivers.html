@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1"
+  />
+
+  <title>
+     Using Wayland With Nvidia Drivers &middot; mfgbhatti 
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css" />
+  <link rel="stylesheet" href="/public/css/syntax.css" />
+  <link rel="stylesheet" href="/public/css/hyde.css" />
+  <link
+    rel="stylesheet"
+    href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface"
+  />
+
+  <!-- Icons -->
+  <link
+    rel="apple-touch-icon-precomposed"
+    sizes="144x144"
+    href="public/apple-touch-icon-144-precomposed.png"
+  />
+  <link rel="shortcut icon" href="public/favicon.ico" />
+
+  <!-- RSS -->
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+</head>
+
+
+  <body class="theme-base-0e">
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href=""> mfgbhatti </a>
+      </h1>
+      <p class="lead">Hi! I'm hobbyist code writer. This is not showcase of my work, but a place to keep solutions to some problems and may be some of my ideas.
+</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        class="sidebar-nav-item"
+        href="/"
+        >Home</a
+      >
+
+              
+      <a
+        class="sidebar-nav-item"
+        href="/about"
+        >About</a
+      >
+            
+      <a
+        class="sidebar-nav-item"
+        href="/excercise"
+        >Excercises</a
+      >
+                  
+
+      <a class="sidebar-nav-item" href="https://github.com/poole/hyde"
+        >GitHub project</a
+      >
+      <span class="sidebar-nav-item">Currently v2.1.0</span>
+    </nav>
+
+    <p>&copy; 2025. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+  <h1 class="post-title">Using Wayland With Nvidia Drivers</h1>
+  <span class="post-date">29 Aug 2022</span>
+  <p>Wayland does not play well with proprietary drivers especially with
+        Nvidia. But some time installing Nvidia drivers to use with
+        <a href="https://github.com/geminis3/envycontrol">Evonycontrol</a>,
+        which is way better than any Nvidia Optimus System Managers. If you are
+        using Gnome, it will automatically disable Wayland upon first install.
+        But with Linux, there is always way around.
+First of all, edit <code class="language-plaintext highlighter-rouge">/etc/gdm/custom.conf</code> and see and comment out the
+        line containing <code class="language-plaintext highlighter-rouge">WaylandEnable=false</code>. This file should look like after
+        editing</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># GDM configuration storage daemon
+# Uncomment the line below to force the login screen to use Xorg
+#WaylandEnable=false
+</code></pre></div></div>
+<p>Edit <code class="language-plaintext highlighter-rouge">/usr/lib/udev/rules.d/61-gdm.rules</code> and comment out below two lines. This is the only case in my experience.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LABEL="gdm_prefer_xorg"
+# RUN+="/usr/lib/gdm-runtime-config set daemon PreferredDisplayServer xorg"
+GOTO="gdm_end"
+
+LABEL="gdm_disable_wayland"
+# RUN+="/usr/lib/gdm-runtime-config set daemon WaylandEnable false"
+GOTO="gdm_end"
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">kms-modifiers</code> must be enabled through <code class="language-plaintext highlighter-rouge">gsettings</code>. Try the following command</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gsettings set org.gnome.mutter experimental-features '["kms-modifiers"]
+</code></pre></div></div>
+
+<p>Enable modesetting for nvdia drivers. Follow the <a href="https://wiki.archlinux.org/index.php/NVIDIA#DRM_kernel_mode_setting">Arch Wiki Instructions</a>. Also make sure to double check <code class="language-plaintext highlighter-rouge">xorg-xwayland</code> and <code class="language-plaintext highlighter-rouge">egl-wayland</code> are installed. The most important thing, <strong>Reboot</strong>. Congratulations, Gnome is running with Wayland despite Nvidia drivers. This will only work for arch linux. I have not tried it on any other Linux.</p>
+
+</div>
+
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/arch-linux-working-on-unified-kernel-image.html">
+            Arch Linux Working On Unified Kernel Image
+            <small>14 May 2025</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/configure-mkinitcpio-with-kernel-parameters.html">
+            Configure Mkinitcpio With Kernel Parameters
+            <small>17 May 2024</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/crypttab-and-crypttabinitramfs.html">
+            Crypttab And Crypttabinitramfs
+            <small>10 May 2024</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+    </div>
+
+  </body>
+</html>

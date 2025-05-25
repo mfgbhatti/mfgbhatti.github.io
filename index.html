@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1"
+  />
+
+  <title>
+     home &middot; mfgbhatti 
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css" />
+  <link rel="stylesheet" href="/public/css/syntax.css" />
+  <link rel="stylesheet" href="/public/css/hyde.css" />
+  <link
+    rel="stylesheet"
+    href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface"
+  />
+
+  <!-- Icons -->
+  <link
+    rel="apple-touch-icon-precomposed"
+    sizes="144x144"
+    href="public/apple-touch-icon-144-precomposed.png"
+  />
+  <link rel="shortcut icon" href="public/favicon.ico" />
+
+  <!-- RSS -->
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+</head>
+
+
+  <body class="theme-base-0e">
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href=""> mfgbhatti </a>
+      </h1>
+      <p class="lead">Hi! I'm hobbyist code writer. This is not showcase of my work, but a place to keep solutions to some problems and may be some of my ideas.
+</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        class="sidebar-nav-item"
+        href="/"
+        >Home</a
+      >
+
+              
+      <a
+        class="sidebar-nav-item"
+        href="/about"
+        >About</a
+      >
+            
+      <a
+        class="sidebar-nav-item"
+        href="/excercise"
+        >Excercises</a
+      >
+                  
+
+      <a class="sidebar-nav-item" href="https://github.com/poole/hyde"
+        >GitHub project</a
+      >
+      <span class="sidebar-nav-item">Currently v2.1.0</span>
+    </nav>
+
+    <p>&copy; 2025. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="posts">
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/arch-linux-working-on-unified-kernel-image.html"> Arch Linux Working On Unified Kernel Image </a>
+    </h1>
+
+    <span class="post-date">14 May 2025</span>
+
+    <h2 id="what-is-a-unified-kernel-image">What is a Unified Kernel Image?</h2>
+<p>A Unified Kernel Image (UKI) is a single executable file that combines:</p>
+
+<ul>
+  <li>The Linux kernel</li>
+  <li>An initramfs (initial RAM filesystem)</li>
+  <li>The kernel command line</li>
+  <li>UEFI stub (for direct UEFI booting)</li>
+  <li>Optional secure boot signatures</li>
+</ul>
+
+<p>UKIs simplify the boot process by bundling everything needed into one file, making it easier to manage and sign for Secure Boot compatibility.</p>
+
+<h2 id="generating-ukis">Generating UKIs</h2>
+<p>Arch linux mkinitcpio will assemble the UKI itself unless <code class="language-plaintext highlighter-rouge">systemd-ukify</code> is installed.</p>
+
+<h3 id="using-mkinitcpio">Using mkinitcpio</h3>
+<p><code class="language-plaintext highlighter-rouge">mkinitcpio</code> preset file for the <code class="language-plaintext highlighter-rouge">linux</code> package at <code class="language-plaintext highlighter-rouge">/etc/mkinitcpio.d/linux.preset</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ESP_DIR="/efi/EFI/ArchLinux"
+
+ALL_kver="/boot/vmlinuz-linux${SUFFIX}"
+
+PRESETS=('default') # this is not for a fallback
+
+default_image="/boot/initramfs-linux${SUFFIX}.img"
+default_uki="${ESP_DIR}/arch-linux${SUFFIX}.efi"
+default_options="--cmdline /etc/kernel/cmdline"
+</code></pre></div></div>
+
+<p>This code can be helpfull when creating a template i.e. for <code class="language-plaintext highlighter-rouge">linux-lts</code> e.g. in <code class="language-plaintext highlighter-rouge">/etc/mkinitcpio.d/linux-lts.preset</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SUFFIX="-lts"
+source /etc/mkinitcpio.d/linux.preset
+</code></pre></div></div>
+
+<h4 id="kernel-command-line">Kernel command line</h4>
+<p><code class="language-plaintext highlighter-rouge">mkinitcpio</code> supports reading kernel parameters from command line files in the <code class="language-plaintext highlighter-rouge">/etc/cmdline.d directory</code>. <code class="language-plaintext highlighter-rouge">mkinitcpio</code> will concatenate the contents of all files with a .conf extension in this directory and use them to generate the kernel command line. Or <code class="language-plaintext highlighter-rouge">/etc/kernel/cmdline</code> can also be used as illustrated in above code.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rd.luks.name=fe30dd04-9v8a-4817-q10e-0999ece7oo31=archlinux root=/dev/mapper/archlinux rootflags=noatime,ssd,compress=zstd:1,space_cache=v2,discard=async,subvol=@ rw quiet splash loglevel=3 systemd.show_status=auto rd.udev.log_level=3
+</code></pre></div></div>
+
+<h3 id="additional-info">Additional info</h3>
+<p><code class="language-plaintext highlighter-rouge">mkinitcpio.conf</code> contains hooks e.g.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HOOKS=(base systemd plymouth autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
+</code></pre></div></div>
+
+<h1 id="note">Note</h1>
+<p>Please give a proper read <a href="https://wiki.archlinux.org/title/Unified_kernel_image">unified_kernel_image</a> and <a href="https://wiki.archlinux.org/title/Mkinitcpio">mkinitcpio</a>.</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/configure-mkinitcpio-with-kernel-parameters.html"> Configure Mkinitcpio With Kernel Parameters </a>
+    </h1>
+
+    <span class="post-date">17 May 2024</span>
+
+    <p>It uses <code class="language-plaintext highlighter-rouge">default_options="--cmdline /etc/kernel/cmdline"</code>. If you are using a single uefi binary file to load your system without any bootloader. This option will generate binary with kernel parameters. This will be helpfull if you are using btrfs with luks and swap is enabled on a laptop with suspend-then-hibernate from systemd.</p>
+
+<p>My <code class="language-plaintext highlighter-rouge">/etc/kernel/cmdline</code> contains</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root=/dev/mapper/cryptroot
+resume=UUID=XxXxxxXX-xxxx-Xxxx-xXXx-xxxXxxXXxXXX
+resume_offset=nnnnNNNN rw rootflags=subvol=@ rootfstype=btrfs
+</code></pre></div></div>
+
+<p>If you are using luks and want to pass discard parameter to kernel on boot. You should put it in <code class="language-plaintext highlighter-rouge">cryptab</code> or <code class="language-plaintext highlighter-rouge">crypttab.initramfs</code>. Offset can be obtained by running</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># btrfs inspect-internal map-swapfile -r swap_file
+</code></pre></div></div>
+
+<p>You can verify parameters from <code class="language-plaintext highlighter-rouge">/proc/cmdline</code> after booting.</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/crypttab-and-crypttabinitramfs.html"> Crypttab And Crypttabinitramfs </a>
+    </h1>
+
+    <span class="post-date">10 May 2024</span>
+
+    <p><strong>Crypttab</strong></p>
+
+<p>The four fields of <code class="language-plaintext highlighter-rouge">/etc/crypttab</code> are defined as follows:</p>
+<ul>
+  <li>The first field contains the name of the resulting volume with decrypted
+    data; its block device is set up below <code class="language-plaintext highlighter-rouge">/dev/mapper/</code>.</li>
+  <li>The second field contains a path to the underlying block device or file,
+    or a specification of a block device via <code class="language-plaintext highlighter-rouge">"UUID="</code> followed by the device <code class="language-plaintext highlighter-rouge">UUID</code>.</li>
+  <li>The third field specifies an absolute path to a file with the encryption
+    key. Optionally, the path may be followed by “:” and an <code class="language-plaintext highlighter-rouge">/etc/fstab</code> style
+    device specification (e.g. starting with <code class="language-plaintext highlighter-rouge">"LABEL="</code> or similar); in which
+    case the path is taken relative to the specified device’s file system root.
+    If the field is not present or is <code class="language-plaintext highlighter-rouge">"none"</code> or <code class="language-plaintext highlighter-rouge">"-"</code>, a key file named after
+    the volume to unlock (i.e. the first column of the line), suffixed with
+    .key is automatically loaded from the <code class="language-plaintext highlighter-rouge">/etc/cryptsetup-keys.d/</code> and <code class="language-plaintext highlighter-rouge">/run/cryptsetup-keys.d/</code>
+    directories, if present. Otherwise, the password has to be manually entered
+    during system boot. For swap encryption, <code class="language-plaintext highlighter-rouge">/dev/urandom</code> may be used as key
+    file, resulting in a randomized key.</li>
+  <li>If the specified key file path refers to an AF_UNIX stream socket in the
+    file system, the key is acquired by connecting to the socket and reading
+    it from the connection. This allows the implementation of a service to
+    provide key information dynamically, at the moment when it is needed.</li>
+</ul>
+
+<p><strong>Crypttab.initramfs</strong></p>
+<ul>
+  <li>It is same as crypttab but it is used for mainly root partition to decrypt</li>
+</ul>
+
+<h3 id="tdlr">td;lr</h3>
+
+<p>crypttab is for encrypted partitions other than root. For root use crypttab.initramfs.</p>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/qxl-with-wayland-and-4k-resolution.html"> QXL With Wayland And 4K Resolution </a>
+    </h1>
+
+    <span class="post-date">29 Mar 2024</span>
+
+    <p>The default memory limit for the QXL video card is very conservative. If you’re running FullHD or higher resolution it is adviced to increase the memory by editing the xml.</p>
+
+<h3 id="behaviour">Behaviour</h3>
+<ul>
+  <li>Frozen screen</li>
+</ul>
+
+<h1 id="qxl-configuration-guide">QXL Configuration Guide</h1>
+
+<h3 id="windows-guest">Windows Guest</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">vgamem = (width * height * 4) / 1024</code></li>
+  <li><code class="language-plaintext highlighter-rouge">ram = 4 * vgamem</code></li>
+  <li><code class="language-plaintext highlighter-rouge">vram</code>: Unimportant (e.g., 8 MB)</li>
+</ul>
+
+<h3 id="modern-linux-guest-kms-driver">Modern Linux Guest (KMS driver)</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">vgamem = (width * height * 4 * heads) / 1024</code>
+    <ul>
+      <li><strong>Heads</strong> = number of screens</li>
+      <li><strong>Wayland</strong>: Double the result</li>
+      <li>Round up to nearest power of 2 if using Virt-Manager</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">ram = 4 * vgamem</code></li>
+  <li><code class="language-plaintext highlighter-rouge">vram &gt;= vgamem * 2</code></li>
+</ul>
+
+<h2 id="key-notes">Key Notes</h2>
+<ul>
+  <li><strong>Wayland Warning</strong>: Avoid in VMs—poor performance (stuttering, low FPS). Use X11 for guests.</li>
+  <li><strong>Max Resolution</strong>:
+    <ul>
+      <li>X11: 2560x1600 (optimal performance at ≤1080p)</li>
+      <li>Higher resolutions may impact performance.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="example-configs">Example Configs</h2>
+
+<h3 id="4k-3840x2160---wayland-guest">4K (3840x2160) - Wayland Guest</h3>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;video&gt;</span>
+  <span class="nt">&lt;model</span> <span class="na">type=</span><span class="s">"qxl"</span> <span class="na">ram=</span><span class="s">"524288"</span> <span class="na">vram=</span><span class="s">"262144"</span> <span class="na">vgamem=</span><span class="s">"131072"</span> <span class="na">heads=</span><span class="s">"1"</span> <span class="na">primary=</span><span class="s">"yes"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;address</span> <span class="na">type=</span><span class="s">"pci"</span> <span class="na">domain=</span><span class="s">"0x0000"</span> <span class="na">bus=</span><span class="s">"0x00"</span> <span class="na">slot=</span><span class="s">"0x01"</span> <span class="na">function=</span><span class="s">"0x0"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/video&gt;</span>
+</code></pre></div></div>
+
+<h3 id="4k-3840x2160---x11-guest">4k (3840x2160) - X11 Guest</h3>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;video&gt;</span>
+  <span class="nt">&lt;model</span> <span class="na">type=</span><span class="s">"qxl"</span> <span class="na">ram=</span><span class="s">"131072"</span> <span class="na">vram=</span><span class="s">"65536"</span> <span class="na">vgamem=</span><span class="s">"32768"</span> <span class="na">heads=</span><span class="s">"1"</span> <span class="na">primary=</span><span class="s">"yes"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;address</span> <span class="na">type=</span><span class="s">"pci"</span> <span class="na">domain=</span><span class="s">"0x0000"</span> <span class="na">bus=</span><span class="s">"0x00"</span> <span class="na">slot=</span><span class="s">"0x01"</span> <span class="na">function=</span><span class="s">"0x0"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/video&gt;</span>
+</code></pre></div></div>
+
+<h3 id="additional-advice">Additional Advice</h3>
+<ul>
+  <li>Avoid excessive memory allocation—wastes RAM without performance gains.</li>
+  <li>Screen arrangement impacts memory needs (e.g., compact vs. diagonal layouts).</li>
+</ul>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/using-wayland-with-nvidia-drivers.html"> Using Wayland With Nvidia Drivers </a>
+    </h1>
+
+    <span class="post-date">29 Aug 2022</span>
+
+    <p>Wayland does not play well with proprietary drivers especially with
+        Nvidia. But some time installing Nvidia drivers to use with
+        <a href="https://github.com/geminis3/envycontrol">Evonycontrol</a>,
+        which is way better than any Nvidia Optimus System Managers. If you are
+        using Gnome, it will automatically disable Wayland upon first install.
+        But with Linux, there is always way around.
+First of all, edit <code class="language-plaintext highlighter-rouge">/etc/gdm/custom.conf</code> and see and comment out the
+        line containing <code class="language-plaintext highlighter-rouge">WaylandEnable=false</code>. This file should look like after
+        editing</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># GDM configuration storage daemon
+# Uncomment the line below to force the login screen to use Xorg
+#WaylandEnable=false
+</code></pre></div></div>
+<p>Edit <code class="language-plaintext highlighter-rouge">/usr/lib/udev/rules.d/61-gdm.rules</code> and comment out below two lines. This is the only case in my experience.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LABEL="gdm_prefer_xorg"
+# RUN+="/usr/lib/gdm-runtime-config set daemon PreferredDisplayServer xorg"
+GOTO="gdm_end"
+
+LABEL="gdm_disable_wayland"
+# RUN+="/usr/lib/gdm-runtime-config set daemon WaylandEnable false"
+GOTO="gdm_end"
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">kms-modifiers</code> must be enabled through <code class="language-plaintext highlighter-rouge">gsettings</code>. Try the following command</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gsettings set org.gnome.mutter experimental-features '["kms-modifiers"]
+</code></pre></div></div>
+
+<p>Enable modesetting for nvdia drivers. Follow the <a href="https://wiki.archlinux.org/index.php/NVIDIA#DRM_kernel_mode_setting">Arch Wiki Instructions</a>. Also make sure to double check <code class="language-plaintext highlighter-rouge">xorg-xwayland</code> and <code class="language-plaintext highlighter-rouge">egl-wayland</code> are installed. The most important thing, <strong>Reboot</strong>. Congratulations, Gnome is running with Wayland despite Nvidia drivers. This will only work for arch linux. I have not tried it on any other Linux.</p>
+
+  </div>
+  
+</div>
+
+<div class="pagination">
+   
+  <a
+    class="pagination-item older"
+    href="/page/2/"
+    >&larr; Older</a
+  >
+   
+  <span class="pagination-item newer">Newer</span>
+   
+</div>
+
+    </div>
+
+  </body>
+</html>

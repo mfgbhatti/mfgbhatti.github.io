@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1"
+  />
+
+  <title>
+     iwlwifi: Your Wifi Is Working? &middot; mfgbhatti 
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css" />
+  <link rel="stylesheet" href="/public/css/syntax.css" />
+  <link rel="stylesheet" href="/public/css/hyde.css" />
+  <link
+    rel="stylesheet"
+    href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface"
+  />
+
+  <!-- Icons -->
+  <link
+    rel="apple-touch-icon-precomposed"
+    sizes="144x144"
+    href="public/apple-touch-icon-144-precomposed.png"
+  />
+  <link rel="shortcut icon" href="public/favicon.ico" />
+
+  <!-- RSS -->
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+</head>
+
+
+  <body class="theme-base-0e">
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href=""> mfgbhatti </a>
+      </h1>
+      <p class="lead">Hi! I'm hobbyist code writer. This is not showcase of my work, but a place to keep solutions to some problems and may be some of my ideas.
+</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        class="sidebar-nav-item"
+        href="/"
+        >Home</a
+      >
+
+              
+      <a
+        class="sidebar-nav-item"
+        href="/about"
+        >About</a
+      >
+            
+      <a
+        class="sidebar-nav-item"
+        href="/excercise"
+        >Excercises</a
+      >
+                  
+
+      <a class="sidebar-nav-item" href="https://github.com/poole/hyde"
+        >GitHub project</a
+      >
+      <span class="sidebar-nav-item">Currently v2.1.0</span>
+    </nav>
+
+    <p>&copy; 2025. All rights reserved.</p>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+  <h1 class="post-title">iwlwifi: Your Wifi Is Working?</h1>
+  <span class="post-date">19 Aug 2022</span>
+  <p>Sometimes, specially when you are using Arch, after using
+<code class="language-plaintext highlighter-rouge">pacman -Syu</code>, and updating <code class="language-plaintext highlighter-rouge">linux-firmware</code>, you
+will find that there is no wifi present after rebooting. Donot panic,
+there is a bug in firmware for iwlwifi which block your system to load
+latest firmware for iwlwifi. Just issue command <code class="language-plaintext highlighter-rouge">journalctl -p 3 -xb</code>,
+this will let you know that firmware file is not loading (I dont recall
+the exact error message).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo mv /usr/lib/firmware/faulty.ucode.xz /usr/lib/firmware/faulty.ucode.xz.back
+</code></pre></div></div>
+
+<p>Thats is all. your wifi will be up in no time!</p>
+
+</div>
+
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/arch-linux-working-on-unified-kernel-image.html">
+            Arch Linux Working On Unified Kernel Image
+            <small>14 May 2025</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/configure-mkinitcpio-with-kernel-parameters.html">
+            Configure Mkinitcpio With Kernel Parameters
+            <small>17 May 2024</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/crypttab-and-crypttabinitramfs.html">
+            Crypttab And Crypttabinitramfs
+            <small>10 May 2024</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+ <title>mfgbhatti</title>
+ <link href="https://mfgbhatti.com/atom.xml" rel="self"/>
+ <link href="https://mfgbhatti.com/"/>
+ <updated>2025-05-25T18:31:34+01:00</updated>
+ <id>https://mfgbhatti.com</id>
+ <author>
+   <name></name>
+   <email></email>
+ </author>
+
+ 
+ <entry>
+   <title>Arch Linux Working On Unified Kernel Image</title>
+   <link href="https://mfgbhatti.com/arch-linux-working-on-unified-kernel-image.html"/>
+   <updated>2025-05-14T00:00:00+01:00</updated>
+   <id>https://mfgbhatti.com/arch-linux-working-on-unified-kernel-image</id>
+   <content type="html">&lt;h2 id=&quot;what-is-a-unified-kernel-image&quot;&gt;What is a Unified Kernel Image?&lt;/h2&gt;
+&lt;p&gt;A Unified Kernel Image (UKI) is a single executable file that combines:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The Linux kernel&lt;/li&gt;
+  &lt;li&gt;An initramfs (initial RAM filesystem)&lt;/li&gt;
+  &lt;li&gt;The kernel command line&lt;/li&gt;
+  &lt;li&gt;UEFI stub (for direct UEFI booting)&lt;/li&gt;
+  &lt;li&gt;Optional secure boot signatures&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;UKIs simplify the boot process by bundling everything needed into one file, making it easier to manage and sign for Secure Boot compatibility.&lt;/p&gt;
+
+&lt;h2 id=&quot;generating-ukis&quot;&gt;Generating UKIs&lt;/h2&gt;
+&lt;p&gt;Arch linux mkinitcpio will assemble the UKI itself unless &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;systemd-ukify&lt;/code&gt; is installed.&lt;/p&gt;
+
+&lt;h3 id=&quot;using-mkinitcpio&quot;&gt;Using mkinitcpio&lt;/h3&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mkinitcpio&lt;/code&gt; preset file for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;linux&lt;/code&gt; package at &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/mkinitcpio.d/linux.preset&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ESP_DIR=&quot;/efi/EFI/ArchLinux&quot;
+
+ALL_kver=&quot;/boot/vmlinuz-linux${SUFFIX}&quot;
+
+PRESETS=(&apos;default&apos;) # this is not for a fallback
+
+default_image=&quot;/boot/initramfs-linux${SUFFIX}.img&quot;
+default_uki=&quot;${ESP_DIR}/arch-linux${SUFFIX}.efi&quot;
+default_options=&quot;--cmdline /etc/kernel/cmdline&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This code can be helpfull when creating a template i.e. for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;linux-lts&lt;/code&gt; e.g. in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/mkinitcpio.d/linux-lts.preset&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SUFFIX=&quot;-lts&quot;
+source /etc/mkinitcpio.d/linux.preset
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;kernel-command-line&quot;&gt;Kernel command line&lt;/h4&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mkinitcpio&lt;/code&gt; supports reading kernel parameters from command line files in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/cmdline.d directory&lt;/code&gt;. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mkinitcpio&lt;/code&gt; will concatenate the contents of all files with a .conf extension in this directory and use them to generate the kernel command line. Or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/kernel/cmdline&lt;/code&gt; can also be used as illustrated in above code.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rd.luks.name=fe30dd04-9v8a-4817-q10e-0999ece7oo31=archlinux root=/dev/mapper/archlinux rootflags=noatime,ssd,compress=zstd:1,space_cache=v2,discard=async,subvol=@ rw quiet splash loglevel=3 systemd.show_status=auto rd.udev.log_level=3
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;additional-info&quot;&gt;Additional info&lt;/h3&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mkinitcpio.conf&lt;/code&gt; contains hooks e.g.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HOOKS=(base systemd plymouth autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;note&quot;&gt;Note&lt;/h1&gt;
+&lt;p&gt;Please give a proper read &lt;a href=&quot;https://wiki.archlinux.org/title/Unified_kernel_image&quot;&gt;unified_kernel_image&lt;/a&gt; and &lt;a href=&quot;https://wiki.archlinux.org/title/Mkinitcpio&quot;&gt;mkinitcpio&lt;/a&gt;.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Configure Mkinitcpio With Kernel Parameters</title>
+   <link href="https://mfgbhatti.com/configure-mkinitcpio-with-kernel-parameters.html"/>
+   <updated>2024-05-17T00:00:00+01:00</updated>
+   <id>https://mfgbhatti.com/configure-mkinitcpio-with-kernel-parameters</id>
+   <content type="html">&lt;p&gt;It uses &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;default_options=&quot;--cmdline /etc/kernel/cmdline&quot;&lt;/code&gt;. If you are using a single uefi binary file to load your system without any bootloader. This option will generate binary with kernel parameters. This will be helpfull if you are using btrfs with luks and swap is enabled on a laptop with suspend-then-hibernate from systemd.&lt;/p&gt;
+
+&lt;p&gt;My &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/kernel/cmdline&lt;/code&gt; contains&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root=/dev/mapper/cryptroot
+resume=UUID=XxXxxxXX-xxxx-Xxxx-xXXx-xxxXxxXXxXXX
+resume_offset=nnnnNNNN rw rootflags=subvol=@ rootfstype=btrfs
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If you are using luks and want to pass discard parameter to kernel on boot. You should put it in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cryptab&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;crypttab.initramfs&lt;/code&gt;. Offset can be obtained by running&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# btrfs inspect-internal map-swapfile -r swap_file
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;You can verify parameters from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/proc/cmdline&lt;/code&gt; after booting.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Crypttab And Crypttabinitramfs</title>
+   <link href="https://mfgbhatti.com/crypttab-and-crypttabinitramfs.html"/>
+   <updated>2024-05-10T00:00:00+01:00</updated>
+   <id>https://mfgbhatti.com/crypttab-and-crypttabinitramfs</id>
+   <content type="html">&lt;p&gt;&lt;strong&gt;Crypttab&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The four fields of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/crypttab&lt;/code&gt; are defined as follows:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;The first field contains the name of the resulting volume with decrypted
+    data; its block device is set up below &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/dev/mapper/&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;The second field contains a path to the underlying block device or file,
+    or a specification of a block device via &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&quot;UUID=&quot;&lt;/code&gt; followed by the device &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UUID&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;The third field specifies an absolute path to a file with the encryption
+    key. Optionally, the path may be followed by “:” and an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/fstab&lt;/code&gt; style
+    device specification (e.g. starting with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&quot;LABEL=&quot;&lt;/code&gt; or similar); in which
+    case the path is taken relative to the specified device’s file system root.
+    If the field is not present or is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&quot;none&quot;&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&quot;-&quot;&lt;/code&gt;, a key file named after
+    the volume to unlock (i.e. the first column of the line), suffixed with
+    .key is automatically loaded from the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/cryptsetup-keys.d/&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/run/cryptsetup-keys.d/&lt;/code&gt;
+    directories, if present. Otherwise, the password has to be manually entered
+    during system boot. For swap encryption, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/dev/urandom&lt;/code&gt; may be used as key
+    file, resulting in a randomized key.&lt;/li&gt;
+  &lt;li&gt;If the specified key file path refers to an AF_UNIX stream socket in the
+    file system, the key is acquired by connecting to the socket and reading
+    it from the connection. This allows the implementation of a service to
+    provide key information dynamically, at the moment when it is needed.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Crypttab.initramfs&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;It is same as crypttab but it is used for mainly root partition to decrypt&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;tdlr&quot;&gt;td;lr&lt;/h3&gt;
+
+&lt;p&gt;crypttab is for encrypted partitions other than root. For root use crypttab.initramfs.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>QXL With Wayland And 4K Resolution</title>
+   <link href="https://mfgbhatti.com/qxl-with-wayland-and-4k-resolution.html"/>
+   <updated>2024-03-29T00:00:00+00:00</updated>
+   <id>https://mfgbhatti.com/qxl-with-wayland-and-4k-resolution</id>
+   <content type="html">&lt;p&gt;The default memory limit for the QXL video card is very conservative. If you’re running FullHD or higher resolution it is adviced to increase the memory by editing the xml.&lt;/p&gt;
+
+&lt;h3 id=&quot;behaviour&quot;&gt;Behaviour&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;Frozen screen&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;qxl-configuration-guide&quot;&gt;QXL Configuration Guide&lt;/h1&gt;
+
+&lt;h3 id=&quot;windows-guest&quot;&gt;Windows Guest&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;vgamem = (width * height * 4) / 1024&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ram = 4 * vgamem&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;vram&lt;/code&gt;: Unimportant (e.g., 8 MB)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;modern-linux-guest-kms-driver&quot;&gt;Modern Linux Guest (KMS driver)&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;vgamem = (width * height * 4 * heads) / 1024&lt;/code&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;Heads&lt;/strong&gt; = number of screens&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;Wayland&lt;/strong&gt;: Double the result&lt;/li&gt;
+      &lt;li&gt;Round up to nearest power of 2 if using Virt-Manager&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ram = 4 * vgamem&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;vram &amp;gt;= vgamem * 2&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;key-notes&quot;&gt;Key Notes&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Wayland Warning&lt;/strong&gt;: Avoid in VMs—poor performance (stuttering, low FPS). Use X11 for guests.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Max Resolution&lt;/strong&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;X11: 2560x1600 (optimal performance at ≤1080p)&lt;/li&gt;
+      &lt;li&gt;Higher resolutions may impact performance.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;example-configs&quot;&gt;Example Configs&lt;/h2&gt;
+
+&lt;h3 id=&quot;4k-3840x2160---wayland-guest&quot;&gt;4K (3840x2160) - Wayland Guest&lt;/h3&gt;
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;video&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;model&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;qxl&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ram=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;524288&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;vram=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;262144&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;vgamem=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;131072&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;heads=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;primary=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;yes&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;address&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;pci&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;domain=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x0000&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;bus=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x00&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;slot=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x01&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;function=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x0&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/video&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;4k-3840x2160---x11-guest&quot;&gt;4k (3840x2160) - X11 Guest&lt;/h3&gt;
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;video&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;model&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;qxl&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ram=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;131072&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;vram=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;65536&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;vgamem=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;32768&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;heads=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;primary=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;yes&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;address&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;pci&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;domain=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x0000&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;bus=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x00&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;slot=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x01&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;function=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0x0&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/video&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;additional-advice&quot;&gt;Additional Advice&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;Avoid excessive memory allocation—wastes RAM without performance gains.&lt;/li&gt;
+  &lt;li&gt;Screen arrangement impacts memory needs (e.g., compact vs. diagonal layouts).&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Using Wayland With Nvidia Drivers</title>
+   <link href="https://mfgbhatti.com/using-wayland-with-nvidia-drivers.html"/>
+   <updated>2022-08-29T00:00:00+01:00</updated>
+   <id>https://mfgbhatti.com/using-wayland-with-nvidia-drivers</id>
+   <content type="html">&lt;p&gt;Wayland does not play well with proprietary drivers especially with
+        Nvidia. But some time installing Nvidia drivers to use with
+        &lt;a href=&quot;https://github.com/geminis3/envycontrol&quot;&gt;Evonycontrol&lt;/a&gt;,
+        which is way better than any Nvidia Optimus System Managers. If you are
+        using Gnome, it will automatically disable Wayland upon first install.
+        But with Linux, there is always way around.
+First of all, edit &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/gdm/custom.conf&lt;/code&gt; and see and comment out the
+        line containing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;WaylandEnable=false&lt;/code&gt;. This file should look like after
+        editing&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# GDM configuration storage daemon
+# Uncomment the line below to force the login screen to use Xorg
+#WaylandEnable=false
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Edit &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/usr/lib/udev/rules.d/61-gdm.rules&lt;/code&gt; and comment out below two lines. This is the only case in my experience.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;LABEL=&quot;gdm_prefer_xorg&quot;
+# RUN+=&quot;/usr/lib/gdm-runtime-config set daemon PreferredDisplayServer xorg&quot;
+GOTO=&quot;gdm_end&quot;
+
+LABEL=&quot;gdm_disable_wayland&quot;
+# RUN+=&quot;/usr/lib/gdm-runtime-config set daemon WaylandEnable false&quot;
+GOTO=&quot;gdm_end&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kms-modifiers&lt;/code&gt; must be enabled through &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;gsettings&lt;/code&gt;. Try the following command&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gsettings set org.gnome.mutter experimental-features &apos;[&quot;kms-modifiers&quot;]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Enable modesetting for nvdia drivers. Follow the &lt;a href=&quot;https://wiki.archlinux.org/index.php/NVIDIA#DRM_kernel_mode_setting&quot;&gt;Arch Wiki Instructions&lt;/a&gt;. Also make sure to double check &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xorg-xwayland&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;egl-wayland&lt;/code&gt; are installed. The most important thing, &lt;strong&gt;Reboot&lt;/strong&gt;. Congratulations, Gnome is running with Wayland despite Nvidia drivers. This will only work for arch linux. I have not tried it on any other Linux.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>iwlwifi: Your Wifi Is Working?</title>
+   <link href="https://mfgbhatti.com/iwlwifi-your-wifi-is-working.html"/>
+   <updated>2022-08-19T00:00:00+01:00</updated>
+   <id>https://mfgbhatti.com/iwlwifi-your-wifi-is-working</id>
+   <content type="html">&lt;p&gt;Sometimes, specially when you are using Arch, after using
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pacman -Syu&lt;/code&gt;, and updating &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;linux-firmware&lt;/code&gt;, you
+will find that there is no wifi present after rebooting. Donot panic,
+there is a bug in firmware for iwlwifi which block your system to load
+latest firmware for iwlwifi. Just issue command &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;journalctl -p 3 -xb&lt;/code&gt;,
+this will let you know that firmware file is not loading (I dont recall
+the exact error message).&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo mv /usr/lib/firmware/faulty.ucode.xz /usr/lib/firmware/faulty.ucode.xz.back
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Thats is all. your wifi will be up in no time!&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Passing RealIp Address To Nginx Access Log</title>
+   <link href="https://mfgbhatti.com/passing-real-ip-address-to-nginx-excess-log.html"/>
+   <updated>2022-06-09T00:00:00+01:00</updated>
+   <id>https://mfgbhatti.com/passing-real-ip-address-to-nginx-excess-log</id>
+   <content type="html">&lt;p&gt;When you place Nginx behind Cloudflare, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http_remote_addr&lt;/code&gt; in Nginx &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;access_log&lt;/code&gt; will contain the Cloudflare IP, which is not helpfull when banning users. To enable Nginx to resolve the real IP of visitors, we need to whitelist the Cloudflare IPs and map the header value.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set_real_ip_from [Cloudflare IP]
+
+real_ip_header CF-Connecting-IP;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;To automate this process, we can write a bash script &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/usr/bin/get_cloudflare_ips.sh&lt;/code&gt; that handles this repetitive task.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#!/usr/bin/env bash
+
+generate_ip_file() {
+    CMD=&quot;$1&quot;
+
+    printf &quot;# https://www.cloudflare.com/ips\n&quot;
+    printf &quot;# Generated at %s\n&quot; &quot;$(LC_ALL=C date)&quot;
+
+    for TYPE in v4 v6; do
+        printf &quot;\n# IP%s\n&quot; &quot;$TYPE&quot;
+        curl -sL &quot;https://www.cloudflare.com/ips-$TYPE/&quot; | sed &quot;s!^!$CMD !g&quot; | sed &quot;s!\$!;!g&quot;
+        printf &quot;\n&quot;
+    done
+}
+
+(generate_ip_file set_real_ip_from &amp;amp;&amp;amp; printf &quot;real_ip_header CF-Connecting-IP;\n&quot;) &amp;gt; /etc/nginx/conf.d/cloudflare.conf
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Assuming this works well, it will produce &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/nginx/conf.d/cloudflare.conf&lt;/code&gt; like&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# https://www.cloudflare.com/ips
+#
+
+# IPv4
+set_real_ip_from 173.245.48.0/20;
+set_real_ip_from 103.21.244.0/22;
+set_real_ip_from 103.22.200.0/22;
+set_real_ip_from 103.31.4.0/22;
+set_real_ip_from 141.101.64.0/18;
+set_real_ip_from 108.162.192.0/18;
+set_real_ip_from 190.93.240.0/20;
+set_real_ip_from 188.114.96.0/20;
+set_real_ip_from 197.234.240.0/22;
+set_real_ip_from 198.41.128.0/17;
+set_real_ip_from 162.158.0.0/15;
+set_real_ip_from 104.16.0.0/13;
+set_real_ip_from 104.24.0.0/14;
+set_real_ip_from 172.64.0.0/13;
+set_real_ip_from 131.0.72.0/22;
+
+# IPv6
+set_real_ip_from 2400:cb00::/32;
+set_real_ip_from 2606:4700::/32;
+set_real_ip_from 2803:f800::/32;
+set_real_ip_from 2405:b500::/32;
+set_real_ip_from 2405:8100::/32;
+set_real_ip_from 2a06:98c0::/29;
+set_real_ip_from 2c0f:f248::/32;
+real_ip_header CF-Connecting-IP;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Since Cloudflare may update their IP addresses, it’s best practice to stay synced with them. To overcome this difficulty, a nice systemd timer at &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/systemd/system/cloudflare.timer&lt;/code&gt; like&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+[Unit]
+Description=Running cloudflare service
+
+[Timer]
+OnCalendar=Sat *-*-1..7 18:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This timer will run after 4 weeks and start a service &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/systemd/system/cloudflare.service&lt;/code&gt; which in turn will execute bash script at &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/usr/bin/get_cloudflare_ips.sh&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+[Unit]
+Description=Fetching cloudflare ips
+ 
+[Service]
+Type=simple
+ExecStart=/usr/bin/get_cloudflare_ips.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Running Multiple Wordpress Instances In Docker</title>
+   <link href="https://mfgbhatti.com/running-multiple-wordpress-instances-in-docker.html"/>
+   <updated>2021-11-17T00:00:00+00:00</updated>
+   <id>https://mfgbhatti.com/running-multiple-wordpress-instances-in-docker</id>
+   <content type="html">&lt;p&gt;When running multiple instances of WordPress in docker, this will be
+        very helpful.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -e MYSQL_ROOT_PASSWORD=&apos;strongpassword&apos; \
+-e MYSQL_USER=wpuser -e MYSQL_PASSWORD=&apos;strongpassword&apos; -e MYSQL_DATABASE=website_db \
+-v /var/www/website/database:/var/lib/mysql --name website_db \
+-d --restart always mariadb
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;You must make sure to run mysql or mariadb container first. Because it
+        will in on the network created by docker before you create wordpress
+        instance&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -e WORDPRESS_DB_HOST=website_db -e WORDPRESS_DB_USER=wpuser \
+-e WORDPRESS_DB_PASSWORD=&apos;strongpassword&apos; -e WORDPRESS_DB_NAME=website_db \
+-p 8081:80 -v /var/www/website/html:/var/www/html --name website_wordpress \
+--link [db container name]:mysql -d --restart always wordpress
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;you can certainly access volumes from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/var/&lt;/code&gt;. And also use docker exec to
+        add dbdump files.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Finding And Deleting Old Kernels</title>
+   <link href="https://mfgbhatti.com/finding-and-deleting-old-kernels.html"/>
+   <updated>2021-02-23T00:00:00+00:00</updated>
+   <id>https://mfgbhatti.com/finding-and-deleting-old-kernels</id>
+   <content type="html">&lt;p&gt;In Ubuntu, you will some time find fallback kernels in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/boot&lt;/code&gt;. These are
+        some time annoyning specially when you do not have something else to do.
+        I’m using ubuntu server for my web projects, I updated it, to my my
+        surprize there were about four versions of kernel were present. Yes you
+        can certainly delete them by issuing command but why so easy. Why not
+        use just one command and you will get only two, one for main use and
+        other one for fallback.
+So any time you got more than two use this command&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;dpkg --list | grep linux-image | awk &apos;{ print $2 }&apos; | sort -V | sed -n &apos;/&apos;`uname -r`&apos;/q;p&apos; \
+| sed -n &apos;/linux-image second last/q&apos; | xargs sudo apt-get -y purge
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;But do not forgot to update your &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;grub config&lt;/code&gt; after this.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Welcome to Jekyll!</title>
+   <link href="https://mfgbhatti.com/whats-jekyll.html"/>
+   <updated>2012-02-06T13:32:53+00:00</updated>
+   <id>https://mfgbhatti.com/whats-jekyll</id>
+   <content type="html">&lt;p&gt;You’ll find this post in your &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
+
+&lt;p&gt;Jekyll requires blog post files to be named according to the following format:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YEAR-MONTH-DAY-title.MARKUP&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Where &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;YEAR&lt;/code&gt; is a four-digit number, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MONTH&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DAY&lt;/code&gt; are both two-digit numbers, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MARKUP&lt;/code&gt; is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
+
+&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;Tom&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints &apos;Hi, Tom&apos; to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Check out the &lt;a href=&quot;https://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+
+</feed>
