@@ -1,0 +1,35 @@
+title: mfgbhatti
+author: M Farhan Ghani # name of site's author
+email: me@mfgbhatti.com # email of site's author
+description: > # description of the site (multiple lines allowed)
+  Hi! I'm hobbyist code writer. This is not showcase of my work, but a place to keep solutions to some problems and may be some of my ideas.
+permalink: /:slug.html
+baseurl: "" # the subpath of your site, e.g. /blog
+url: ""
+# url: https://mfgbhatti.com # root address of the site
+
+# Custom vars
+version: 2.1.0
+
+github:
+  repo: https://github.com/poole/hyde
+
+collections:
+  projs:
+    output: true
+    permalink: /:collection/:path.html
+
+# Pagination Settings
+pagination:
+  enabled: true
+  per_page: 5
+  permalink: "/page/:num/"
+  title: " - page :num"
+  limit: 0
+  sort_field: "date"
+  sort_reverse: true
+
+plugins:
+  - jekyll-feed
+  - jekyll-paginate-v2
+  - jekyll-gist

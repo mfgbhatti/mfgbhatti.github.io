@@ -1,0 +1,9 @@
+<ul>
+  {% for project in site.projs %}
+  <li>
+    <a href="{{ project.url | relative_url }}">
+      {{ project.title }}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
